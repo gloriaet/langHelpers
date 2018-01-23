@@ -1,0 +1,101 @@
+
+
+/* Generic Selectors */
+
+body {
+
+margin:  0 5%;
+
+font-family: verdana, Georgia, arial, helvetica, sans-serif;
+
+font-size: 1em;  /* default size */
+
+color: #3B3221;  /* text color */
+
+background: #596D87; /* background color */
+
+}
+
+img {
+
+max-height:100%;
+max-width:100%;
+
+}
+
+.heading {
+      background:#D9D9D9;
+      color: #3B3221; 
+      margin: 1% 13% 1% 13%;
+      padding: 2%;
+      text-align:center;
+}
+.content {
+    background: #C0DAFC;
+    color: #3B3221;
+    margin: 1% 13% 1% 13%;
+    padding: 2%;
+    overflow:auto;
+}
+
+.border { 
+          margin: 5% 2%;
+          border: 2px solid #596D87;
+          padding: 5% 2%;
+          overflow:auto;
+          text-align:center;
+  }
+
+.floatleft {
+        width: 40%;
+	padding:2%;
+	float:left;
+      }
+.picture {
+		width: 35%;
+		height: 35%;
+		 }
+.center {
+       text-align:center;
+        }
+.clear {
+       clear:both;
+       }
+
+.footer{
+        font-size:.8em;
+	margin:5% 1% 1% 1%;
+	border-top: 1px solid #3B3221;
+        padding:1%;
+        
+}
+/* now change anchor tag colors */
+a:link { 
+         color: blue;
+    }
+a:visited { 
+            color: #145D0C;
+          }
+a:hover { background:pink;
+          color:black;
+        }
+
+table {
+font-family: arial, sans-serif;
+border-collapse: collapse;
+width: 50%;
+margin: auto;
+}
+
+td, th {
+border: 1px solid #000000;
+text-align: left;
+padding: 8px;
+}
+
+tr:nth-child(even) {
+background-color: #dddddd;
+}
+tr:nth-child(odd) {
+background-color: #dddddd;
+}
