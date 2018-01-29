@@ -87,6 +87,11 @@ if(isset($_SESSION['userID']))
 	{
 	    closeUserPost();
 	}
+	
+	else if($_POST['viewBoard'])
+	{
+		viewLanguageBoard();
+	}
     
     else if($_POST['submitLanguage'])
     {
@@ -284,6 +289,8 @@ function displayUserHome()
     print "Your account currently uses the language: <strong>".$languageName."</strong><br>\n";
     print "<div> <form method='post' action='$self' >\n";
     print "<h5> <input type='submit' name='changeLanguage' value='Change Language' /></h5>\n";
+	print "<h5> <input type='submit' name='viewBoard' ".
+	      " value='View Board' /></h5>\n";
     print "<h5> <input type='submit' name='createQuestionPost' ".
 	      " value='Create Question' /></h5>\n";
 	print "<h5> <input type='submit' name='viewMyPosts' value='View My Posts' /></h5>\n";
@@ -350,7 +357,7 @@ function showUserPosts()
     $postIDArray = getAllUserPosts($userID);
     if(count($postIDArray) > 0)
     {
-        print "<h3>Here are your currently open posts!</h3>\n";
+        print "<h3>Here are your posts!</h3>\n";
         print "<table>\n";
         print "<tr>\n<th>Title</th>\n";
         print "<th>Language</th>\n";
@@ -418,4 +425,43 @@ function closeUserPost()
 	print "<h5> <input type='submit' name='viewMyPosts' value='Return' /></h5>\n";
 	print "</form>\n</div>\n";
     
+}
+
+function viewLanguageBoard()
+{
+	$langID = $_SESSION['userLangID'];
+	$langName = getLanguageName($langID);
+    $postIDArray = getAllPosts($langID);
+    if(count($postIDArray) > 0)
+    {
+        print "<h3>Here are the currently open ".$langName." posts!</h3>\n";
+        print "<table>\n";
+        print "<tr>\n<th>Title</th>\n";
+        print "<th>Language</th>\n";
+        print "<th>Datetime Posted</th>\n";
+		print "<th>View Post</th>\n</tr>\n";
+        for($i = 0; $i < count($postIDArray); $i++)
+        {
+            $postID = $postIDArray[$i];
+            $postInfoArray = getPostInfo($postID);
+            print "<tr>\n<td>".$postInfoArray['title']."</td>\n";
+            print "<td>".$postInfoArray['language']."</td>\n";
+            print "<td>".$postInfoArray['datetime']."</td>\n";
+			print "<td><div> <form method='post' action='$self' >\n";
+			print "<h5> <input type='submit' name='viewPost' ".
+				  " value='View' />\n";
+			print "<input type='hidden' name='postID' ".
+				  " value=".$postID." /></h5>\n";
+			print "</form>\n</div></td>\n</tr>\n";
+        }
+        print "</table>\n";
+    }
+    else
+    {
+        print "<h3> There are no posts on this board yet! </h3>\n";
+    }
+    print "<div> <form method='post' action='$self' >\n";
+    print "<h5> <input type='submit' name='returnDash' ".
+        " value='Return to Dashboard' /></h5>\n";
+	print "</form>\n</div>\n";
 }

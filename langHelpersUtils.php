@@ -241,4 +241,21 @@ function closePost($postID)
     mysqli_query($conn, $query);
 }
 
+function getAllPosts($langID)
+{
+	$conn = connectToDB();
+    $postIDs = array();
+    $query = "SELECT questionID FROM Question WHERE languageID = '".$langID."';";
+    $result = mysqli_query($conn, $query);
+	if (mysqli_num_rows($result) > 0)
+	{
+		while ($row = mysqli_fetch_assoc($result))
+		{
+		    $id = intval($row["questionID"]);
+            array_push($postIDs, $id);
+		}
+	}
+	return $postIDs;
+}
+
 ?>
