@@ -205,4 +205,40 @@ function getPostInfo($postID)
     return $postInfo;
 }
 
+function getQuestion($postID)
+{
+	$conn = connectToDB();
+    $questionInfo = array();
+    $query = "SELECT questionTitle, questionDateTime, questionContent FROM Question WHERE questionID = '".$postID."';";
+    $result = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($result);
+    $questionInfo['title'] = $row['questionTitle'];
+    $questionInfo['datetime'] = $row['questionDateTime'];
+	$questionInfo['content'] = $row['questionContent'];
+    return $questionInfo;
+}
+
+function checkIfOpen($postID)
+{
+    $isOpen = true;
+    
+    $conn = connectToDB();
+    $query = "SELECT closed FROM Question WHERE questionID ='".$postID."';";
+    $result = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($result);
+    if($row['closed'] == 1)
+    {
+        $isOpen = false;
+    }
+    
+    return $isOpen;
+}
+
+function closePost($postID)
+{
+    $conn = connectToDB();
+    $query = "UPDATE Question SET closed = 1 WHERE questionID = '".$postID."';";
+    mysqli_query($conn, $query);
+}
+
 ?>

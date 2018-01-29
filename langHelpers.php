@@ -77,6 +77,16 @@ if(isset($_SESSION['userID']))
     {
         showUserPosts();
     }
+	
+	else if($_POST['viewMyPost'])
+	{
+		showUserPost();
+	}
+	
+	else if($_POST['closePost'])
+	{
+	    closeUserPost();
+	}
     
     else if($_POST['submitLanguage'])
     {
@@ -344,14 +354,21 @@ function showUserPosts()
         print "<table>\n";
         print "<tr>\n<th>Title</th>\n";
         print "<th>Language</th>\n";
-        print "<th>Datetime Posted</th?\n</tr>\n";
+        print "<th>Datetime Posted</th>\n";
+		print "<th>View Post</th>\n</tr>\n";
         for($i = 0; $i < count($postIDArray); $i++)
         {
             $postID = $postIDArray[$i];
             $postInfoArray = getPostInfo($postID);
             print "<tr>\n<td>".$postInfoArray['title']."</td>\n";
             print "<td>".$postInfoArray['language']."</td>\n";
-            print "<td>".$postInfoArray['datetime']."</td>\n</tr>\n";
+            print "<td>".$postInfoArray['datetime']."</td>\n";
+			print "<td><div> <form method='post' action='$self' >\n";
+			print "<h5> <input type='submit' name='viewMyPost' ".
+				  " value='View' />\n";
+			print "<input type='hidden' name='postID' ".
+				  " value=".$postID." /></h5>\n";
+			print "</form>\n</div></td>\n</tr>\n";
         }
         print "</table>\n";
     }
@@ -364,4 +381,41 @@ function showUserPosts()
     print "<h5> <input type='submit' name='returnDash' ".
         " value='Return to Dashboard' /></h5>\n";
 	print "</form>\n</div>\n";
+}
+
+function showUserPost()
+{
+	//print "You're trying to view a post!<br/>\n";
+	$postID = $_POST['postID'];
+	//print "The post you are trying to view is ".$postID."<br/>\n";
+	
+	$postOpen = checkIfOpen($postID);
+	if($postOpen)
+	{
+	    print "<div> <form method='post' action='$self' >\n";
+	    print "<h5> <input type='submit' name='closePost' ".
+		      " value='Close Post' />\n";
+	    print "<input type='hidden' name='postID' ".
+		      " value=".$postID." /></h5>\n";
+	    print "</form>\n</div></td>\n</tr>\n";
+	}
+	$post = getQuestion($postID);
+	print "<strong>".$post['title']."</strong>\n";
+	print "<br/><br/>".$post['content']."<br/><br/>\n";
+	print "Posted on: ".$post['datetime']."\n";
+	print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='viewMyPosts' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
+}
+
+function closeUserPost()
+{
+    $postID = $_POST['postID'];
+    print "The post has been closed. You will still be able to view this post from your My Posts page, but it will no longer appear on the language board it's associated with.\n";
+    print "Click below to return to your My Posts page.";
+    closePost($postID);
+    print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='viewMyPosts' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
+    
 }
