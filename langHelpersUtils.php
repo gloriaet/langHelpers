@@ -227,6 +227,13 @@ function getQuestion($postID)
     $questionInfo['title'] = $row['questionTitle'];
     $questionInfo['datetime'] = $row['questionDateTime'];
 	$questionInfo['content'] = $row['questionContent'];
+	
+	$query2 = "SELECT userID FROM UserQuestion WHERE questionID = '".$postID."';";
+	$result2 = mysqli_query($conn, $query2);
+	$row2 = mysqli_fetch_assoc($result2);
+	$nickname = getUserNickname($row2['userID']);
+	$questionInfo['userNickname'] = $nickname;
+	
     return $questionInfo;
 }
 
@@ -268,6 +275,16 @@ function getAllPosts($langID)
 		}
 	}
 	return $postIDs;
+}
+
+function getUserNickname($userID)
+{
+	$conn = connectToDB();
+	$query = "SELECT userNickname FROM User WHERE userID = '".$userID."';";
+	$result = mysqli_query($conn, $query);
+	$row = mysqli_fetch_assoc($result);
+	$userNickname = $row['userNickname'];
+	return $userNickname;
 }
 
 ?>

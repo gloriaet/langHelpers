@@ -92,6 +92,11 @@ if(isset($_SESSION['userID']))
 	{
 		viewLanguageBoard();
 	}
+	
+	else if($_POST['viewPost'])
+	{
+		showPost();
+	}
     
     else if($_POST['submitLanguage'])
     {
@@ -406,7 +411,7 @@ function showUserPost()
 		      " value='Close Post' />\n";
 	    print "<input type='hidden' name='postID' ".
 		      " value=".$postID." /></h5>\n";
-	    print "</form>\n</div></td>\n</tr>\n";
+	    print "</form>\n</div>\n";
 	}
 	else
 	{
@@ -415,10 +420,11 @@ function showUserPost()
 	$post = getQuestion($postID);
 	print "<strong>".$post['title']."</strong>\n";
 	print "<br/><br/>".$post['content']."<br/><br/>\n";
-	print "Posted on: ".$post['datetime']."\n";
+	print "Posted by ".$post['userNickname']." on: ".$post['datetime']."\n";
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewMyPosts' value='Return' /></h5>\n";
 	print "</form>\n</div>\n";
+	print "-------------------------------------------------------------------------------------------------------------------";
 }
 
 function closeUserPost()
@@ -470,4 +476,20 @@ function viewLanguageBoard()
     print "<h5> <input type='submit' name='returnDash' ".
         " value='Return to Dashboard' /></h5>\n";
 	print "</form>\n</div>\n";
+}
+
+function showPost()
+{
+	//print "You're trying to view a post!<br/>\n";
+	$postID = $_POST['postID'];
+	//print "The post you are trying to view is ".$postID."<br/>\n";
+	
+	$post = getQuestion($postID);
+	print "<strong>".$post['title']."</strong>\n";
+	print "<br/><br/>".$post['content']."<br/><br/>\n";
+	print "Posted by ".$post['userNickname']." on: ".$post['datetime']."\n";
+	print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='viewBoard' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
+	print "-------------------------------------------------------------------------------------------------------------------";
 }
