@@ -173,6 +173,19 @@ function createQuestion($title, $content, $langID, $userID)
     mysqli_query($conn, $queryLink);
 }
 
+function createAnswer($content, $userID, $postID)
+{
+	$conn = connectToDB();
+	date_default_timezone_set('America/Chicago');
+	$currentDateTime = date('Y/m/d h:i:s a');
+	$queryAnswer = "INSERT INTO Answer VALUES (null, '".$content."', '".$currentDateTime."', '".$postID."');";
+	mysqli_query($conn, $queryAnswer);
+	
+	$answerID = mysqli_insert_id($conn);
+	$queryLink = "INSERT INTO UserAnswer VALUES ('".$userID."', '".$answerID."');";
+	mysqli_query($conn, $queryLink);
+}
+
 function getAllUserPosts($userID)
 {
     $conn = connectToDB();
@@ -287,4 +300,41 @@ function getUserNickname($userID)
 	return $userNickname;
 }
 
+function getAllAnswers($postID)
+{
+	$conn = connectToDB();
+    $answerIDs = array();
+    $query = "SELECT answerID FROM Answer WHERE questionID = '".$postID."';";
+    $result = mysqli_query($conn, $query);
+	if (mysqli_num_rows($result) > 0)
+	{
+		while ($row = mysqli_fetch_assoc($result))
+		{
+		    $id = intval($row["answerID"]);
+            array_push($answerIDs, $id);
+		}
+	}
+	return $answerIDs;
+}
+
+function getAnswer($answerID)
+{
+	$conn = connectToDB();
+    $answerInfo = array();
+    $query = "SELECT answerDateTime, answerContent FROM Answer WHERE answerID = '".$answerID."';";
+    $result = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($result);
+    $answerInfo['datetime'] = $row['answerDateTime'];
+	$answerInfo['content'] = $row['answerContent'];
+	
+	//print "In getAnswer, here is answerContent ".$row['answerContent'];
+	
+	$query2 = "SELECT userID FROM UserAnswer WHERE answerID = '".$answerID."';";
+	$result2 = mysqli_query($conn, $query2);
+	$row2 = mysqli_fetch_assoc($result2);
+	$nickname = getUserNickname($row2['userID']);
+	$answerInfo['userNickname'] = $nickname;
+	
+    return $answerInfo;
+}
 ?>

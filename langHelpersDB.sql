@@ -44,3 +44,20 @@ CREATE TABLE UserQuestion (
     foreign key (userID) references User (userID) on delete cascade,
     foreign key (questionID) references Question (questionID) on delete cascade
     ) Engine = InnoDB;
+	
+CREATE TABLE Answer (
+	answerID int auto_increment not null,
+	answerContent varchar(500) not null,
+	answerDateTime datetime not null,
+	questionID int,
+	primary key (answerID),
+	foreign key (questionID) references Question (questionID) on delete cascade
+	) Engine = InnoDB;
+	
+CREATE TABLE UserAnswer (
+	userID int,
+	answerID int,
+	primary key (userID, answerID),
+	foreign key (userID) references User (userID) on delete cascade,
+	foreign key (answerID) references Answer (answerID) on delete cascade
+	) Engine = InnoDB;

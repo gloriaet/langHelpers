@@ -97,6 +97,16 @@ if(isset($_SESSION['userID']))
 	{
 		showPost();
 	}
+	
+	else if($_POST['createAnswer'])
+	{
+		showAnswerPostForm();
+	}
+	
+	else if($_POST['submitAnswerPost'])
+	{
+		processAnswerPost();
+	}
     
     else if($_POST['submitLanguage'])
     {
@@ -425,6 +435,24 @@ function showUserPost()
 	print "<h5> <input type='submit' name='viewMyPosts' value='Return' /></h5>\n";
 	print "</form>\n</div>\n";
 	print "-------------------------------------------------------------------------------------------------------------------";
+	
+	$answerIDs = getAllAnswers($postID);
+	if(count($answerIDs) > 0)
+	{
+		for($i = 0; $i < count($answerIDs); $i++)
+		{
+			$answer = getAnswer($answerIDs[$i]);
+			//$content = $answer['content'];
+			print "<br/><br/>".$answer['content']."\n";
+			print "<br/><br/>Posted by ".$answer['userNickname']." on: ".$answer['datetime']."\n";
+			print "<br/><br/>-------------------------------------------------------------------------------------------------------------------";
+		}
+	}
+	
+	else
+	{
+		print "<br/><br/>There are no answers for this post yet!";
+	}
 }
 
 function closeUserPost()
@@ -490,6 +518,70 @@ function showPost()
 	print "Posted by ".$post['userNickname']." on: ".$post['datetime']."\n";
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewBoard' value='Return' /></h5>\n";
+	print "<h5> <input type='submit' name='createAnswer' value='Answer' /></h5>\n";
+	print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
 	print "</form>\n</div>\n";
 	print "-------------------------------------------------------------------------------------------------------------------";
+	
+	$answerIDs = getAllAnswers($postID);
+	if(count($answerIDs) > 0)
+	{
+		for($i = 0; $i < count($answerIDs); $i++)
+		{
+			$answer = getAnswer($answerIDs[$i]);
+			//$content = $answer['content'];
+			print "<br/><br/>".$answer['content']."\n";
+			print "<br/><br/>Posted by ".$answer['userNickname']." on: ".$answer['datetime']."\n";
+			print "<br/><br/>-------------------------------------------------------------------------------------------------------------------";
+		}
+	}
+	
+	else
+	{
+		print "<br/><br/>There are no answers for this post yet!";
+	}
+}
+
+function showAnswerPostForm()
+{
+	$self = $_SERVER['PHP_SELF'];
+    $languageName = getLanguageName($_SESSION['userLangID']);
+	$postID = $_POST['postID'];
+	$post = getQuestion($postID);
+    
+    print "<strong>Please fill in the information below to create your answer.</strong><br><br>\n";
+    print "<strong>Board:</strong> ".$languageName."<br><br>\n";
+	print "<strong>Question:</strong> ".$post['content']."<br/><br/>\n";
+    print "<div> <form method='post' action='$self' >\n";
+    print "<strong>Answer: <textarea name='theContent' rows='8' cols='100'>\n".
+		  " </textarea> </h3>\n";
+	print "<h3> <input type='hidden' name='postID' value='".$postID."' /></h3>\n";
+	print "<h3> <input type='submit' name='submitAnswerPost' ".
+		  " value='Submit' /> </strong>\n";
+	print "</form>\n</div>\n";
+}
+
+function processAnswerPost()
+{
+	$content = htmlentities($_POST['theContent'], ENT_QUOTES);
+	$userID = $_SESSION['userID'];
+	$postID = $_POST['postID'];
+	$post = getQuestion($postID);
+	
+	if($content == "")
+	{
+	    print "Your answer must have content before you submit.<br>\n";
+	    showAnswerPostForm();
+	}
+	
+	else
+	{
+	    createAnswer($content, $userID, $postID);
+	    print "Your answer has been added to the question titled <strong>".$post['title']." </strong>!<br><br>\n";
+	    print "Click below to return to the board.<br><br>\n";
+	    print "<div> <form method='post' action='$self' >\n";
+        print "<h5> <input type='submit' name='viewBoard' ".
+	        " value='Return' /></h5>\n";
+	    print "</form>\n</div>\n";
+	}
 }
