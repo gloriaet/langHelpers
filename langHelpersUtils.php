@@ -194,14 +194,26 @@ function getPostInfo($postID)
 {
     $conn = connectToDB();
     $postInfo = array();
-    $query = "SELECT questionTitle, questionDateTime, languageID FROM Question WHERE questionID = '".$postID."';";
+    $query = "SELECT questionTitle, questionDateTime, languageID, closed FROM Question WHERE questionID = '".$postID."';";
     $result = mysqli_query($conn, $query);
     $row = mysqli_fetch_assoc($result);
     $postInfo['title'] = $row['questionTitle'];
     $postInfo['datetime'] = $row['questionDateTime'];
+
     $langID = $row['languageID'];
     $language = getLanguageName($langID);
     $postInfo['language'] = $language;
+	
+	$closed = "";
+	if($row['closed'] == 0)
+	{
+		$closed = "Open";
+	}
+	else
+	{
+		$closed = "Closed";
+	}
+	$postInfo['closed'] = $closed;
     return $postInfo;
 }
 
@@ -245,7 +257,7 @@ function getAllPosts($langID)
 {
 	$conn = connectToDB();
     $postIDs = array();
-    $query = "SELECT questionID FROM Question WHERE languageID = '".$langID."';";
+    $query = "SELECT questionID FROM Question WHERE languageID = '".$langID."' AND closed = 0;";
     $result = mysqli_query($conn, $query);
 	if (mysqli_num_rows($result) > 0)
 	{

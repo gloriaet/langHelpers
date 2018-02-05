@@ -362,14 +362,16 @@ function showUserPosts()
         print "<tr>\n<th>Title</th>\n";
         print "<th>Language</th>\n";
         print "<th>Datetime Posted</th>\n";
+		print "<th>Status</th>\n";
 		print "<th>View Post</th>\n</tr>\n";
-        for($i = 0; $i < count($postIDArray); $i++)
+        for($i = count($postIDArray) - 1; $i >= 0; $i--)
         {
             $postID = $postIDArray[$i];
             $postInfoArray = getPostInfo($postID);
             print "<tr>\n<td>".$postInfoArray['title']."</td>\n";
             print "<td>".$postInfoArray['language']."</td>\n";
             print "<td>".$postInfoArray['datetime']."</td>\n";
+			print "<td>".$postInfoArray['closed']."</td>\n";
 			print "<td><div> <form method='post' action='$self' >\n";
 			print "<h5> <input type='submit' name='viewMyPost' ".
 				  " value='View' />\n";
@@ -406,6 +408,10 @@ function showUserPost()
 		      " value=".$postID." /></h5>\n";
 	    print "</form>\n</div></td>\n</tr>\n";
 	}
+	else
+	{
+		print "<strong>This post is closed.</strong><br/><br/>\n";
+	}
 	$post = getQuestion($postID);
 	print "<strong>".$post['title']."</strong>\n";
 	print "<br/><br/>".$post['content']."<br/><br/>\n";
@@ -440,7 +446,7 @@ function viewLanguageBoard()
         print "<th>Language</th>\n";
         print "<th>Datetime Posted</th>\n";
 		print "<th>View Post</th>\n</tr>\n";
-        for($i = 0; $i < count($postIDArray); $i++)
+        for($i = count($postIDArray) - 1; $i >= 0; $i--)
         {
             $postID = $postIDArray[$i];
             $postInfoArray = getPostInfo($postID);
