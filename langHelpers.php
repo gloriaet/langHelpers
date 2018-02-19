@@ -5,10 +5,6 @@
 //  This will include both moderator and regular user side functionality
 //  For project details check:
 //  gtemple1.create.stedwards.edu/cosc4157/
-//
-//History:
-//  11/10/17 - Setting up logic for main page display, login, user language
-//      selection and question post creation
 
 require "utilities.php";
 require "langHelpersUtils.php";
@@ -39,14 +35,14 @@ if(!isset($_SESSION['userID']))
     {
         checkCredentials();
     }
-    
+
     else if($_POST['signUp'])
-    {    
+    {
         showSignUpForm();
     }
-    
+
     else if($_POST['submitSignUp'])
-    {    
+    {
         showSignUpConfirmation();
     }
 }
@@ -57,68 +53,73 @@ if(isset($_SESSION['userID']))
     {
         doLogout();
     }
-    
+
     else if($_POST['changeLanguage'])
     {
         displayLanguageChoice();
     }
-    
+
     else if($_POST['createQuestionPost'])
     {
         showQuestionPostForm("");
     }
-    
+
     else if($_POST['submitQuestionPost'])
     {
         processQuestionPost();
     }
-    
+
     else if($_POST['viewMyPosts'])
     {
         showUserPosts();
     }
-	
-	else if($_POST['viewMyPost'])
-	{
-		showUserPost();
-	}
-	
-	else if($_POST['closePost'])
-	{
-	    closeUserPost();
-	}
-	
-	else if($_POST['viewBoard'])
-	{
-		viewLanguageBoard();
-	}
-	
-	else if($_POST['viewPost'])
-	{
-		showPost();
-	}
-	
-	else if($_POST['createAnswer'])
-	{
-		showAnswerPostForm();
-	}
-	
-	else if($_POST['submitAnswerPost'])
-	{
-		processAnswerPost();
-	}
-    
+
+    else if($_POST['viewMyPost'])
+    {
+        showUserPost();
+    }
+
+    else if($_POST['closePost'])
+    {
+        closeUserPost();
+    }
+
+    else if($_POST['viewBoard'])
+    {
+        viewLanguageBoard();
+    }
+
+    else if($_POST['viewPost'])
+    {
+        showPost();
+    }
+
+    else if($_POST['createAnswer'])
+    {
+        showAnswerPostForm();
+    }
+
+    else if($_POST['submitAnswerPost'])
+    {
+        processAnswerPost();
+    }
+
+    else if($_POST['upvoteAnswer'])
+    {
+        processUpvote();
+    }
+
     else if($_POST['submitLanguage'])
     {
         changeUserLanguage();
         displayUserHome();
     }
-    
+
     else if(userChoseFirstLanguage($_SESSION['userID']))
     {
         displayUserHome();
     }
-    
+
     else
     {
         displayLanguageChoice();
@@ -130,11 +131,11 @@ print "</div>\n";  // end of content div
 function showMainPage()
 {
     $self = $_SERVER['PHP_SELF'];
-    
+
     //print "<h2> This will be the main page in the future! It will display neat features/info! </h2>\n";
-    
+
     print "<h2> Welcome! </h2>\n";
-    
+
 	print "<div> <form method='post' action='$self' >\n";
     print "<h5> <input type='submit' name='logIn' ".
 	      " value='Log In' /></h5>\n";
@@ -145,7 +146,7 @@ function showMainPage()
 function showLogInForm()
 {
     $self = $_SERVER['PHP_SELF'];
-    
+
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h3> Email: <input type='text' name='theEmail' value='' /></h3>\n";
 	print "<h3> Password: <input type='password' name='thePassword' value='' /></h3>\n";
@@ -173,7 +174,7 @@ function checkCredentials()
 function showSignUpForm()
 {
     $self = $_SERVER['PHP_SELF'];
-    
+
     print "<form method = 'post' action = '$self' >\n";
     print "<h3> Please enter the information below to create your account. </h3>\n";
     print "<h4> Note: This website does not have the capability to secure your account information. Please do not use a nickname or password that you use for any other service.</h4>\n";
@@ -194,14 +195,14 @@ function showSignUpConfirmation()
     $lastName = htmlentities($_POST['theLastName']);
     $hash = md5(rand(0, 1000));
     $emailPattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/";
-    
+
     //all fields must be filled in, so first check for blanks
     if($email == "" || $nickname == "" || $password == "" || $firstName == "" || $lastName == "")
     {
         print "<h2> You must fill in all fields before submitting. </h2>\n";
         showSignUpForm();
     }
-    
+
     //email must follow standard form xxx@xxx.xxx
     //using regular expressions to check for this
     else if(!preg_match($emailPattern, $email))
@@ -209,21 +210,21 @@ function showSignUpConfirmation()
         print "<h2> Your email must be of the form xxx@xxx.xxx </h2>\n";
         showSignUpForm();
     }
-    
+
     //email must be unique, check if email already in database
     else if(checkEmail($email))
     {
         print "<h2> This email is already in use on an account. Please use a different email address. </h2>\n";
         showSignUpForm();
     }
-    
+
     //nickname must be unique, check if nickname already in database
     else if(checkNickname($nickname))
     {
         print "<h2> This nickname is taken. Please choose another. </h2>\n";
         showSignUpForm();
     }
-    
+
     //all fields are filled correctly
     //email and nickname are both unique
     //create account for user and send verification email
@@ -233,13 +234,13 @@ function showSignUpConfirmation()
         $to = $email;
         $subject = "LangHelpers Sign Up Verification";
         $message = '
-        
+
         Thank you for signing up with LangHelpers!
         You will be able to log into the system using the credentials you created your account with as soon as you activate your account.
-        
+
         Activate your account by clicking the link below.
         http://gtemple1.create.stedwards.edu/langHelpers/verifyAccount.php?email='.$email.'&hash='.$hash.'
-        
+
         ';
         $headers = 'From:noreply@langHelpers.com' . "\r\n";
         mail($to, $subject, $message, $headers);
@@ -248,17 +249,17 @@ function showSignUpConfirmation()
         print "registered with. Click the link in the email to activate your <br>\n";
         print "account and start working with LangHelpers!</p><br>\n";
         print "<a href = 'langHelpers.php'>Return Home</a>\n";
-        
+
     }
 }
 
 function doLogout()
 {
     $self = $_SERVER['PHP_SELF'];
-    
+
     session_unset();
     session_destroy();
-    
+
     print "You have successfully signed out of LangHelpers.<br><br>\n";
     print "Click below to return to the main page.<br><br>\n";
     print "<div> <form method='post' action='$self' >\n";
@@ -271,9 +272,9 @@ function displayLanguageChoice()
 {
     $self = $_SERVER['PHP_SELF'];
     print "<strong>Please choose a language to work in. You may change your language again at any time.</strong>\n";
-    
+
     $languages = getAllLanguages();
-    
+
     print "<div> <form method='post' action='$self' >\n";
     print "<h4> <select name = 'languageChoice' >\n";
     for($i = 0; $i < sizeof($languages); $i++)
@@ -291,7 +292,7 @@ function changeUserLanguage()
     $languageID = $_POST['languageChoice'] + 1;
     $userID = $_SESSION['userID'];
     setUserLanguage($userID, $languageID);
-    
+
     $_SESSION['userLangID'] = getUserLanguageID($userID);
 }
 
@@ -299,7 +300,7 @@ function displayUserHome()
 {
     $self = $_SERVER['PHP_SELF'];
     $languageName = getLanguageName($_SESSION['userLangID']);
-    
+
     //print "Hey you made it to the user home page now!<br><br>\n";
     print "Your account currently uses the language: <strong>".$languageName."</strong><br>\n";
     print "<div> <form method='post' action='$self' >\n";
@@ -317,7 +318,7 @@ function displayUserHome()
 function displayLanguageChange()
 {
     print "Here a user will be able to change their posting language.";
-    
+
     print "<div> <form method='post' action='$self' >\n";
     print "<h5> <input type='submit' name='submitLanguage' ".
 	      " value='Submit' /></h5>\n";
@@ -328,7 +329,7 @@ function showQuestionPostForm($content)
 {
     $self = $_SERVER['PHP_SELF'];
     $languageName = getLanguageName($_SESSION['userLangID']);
-    
+
     print "<strong>Please fill in the information below to create your post.</strong><br><br>\n";
     print "<strong>Board:</strong> ".$languageName."<br><br>\n";
     print "<div> <form method='post' action='$self' >\n";
@@ -347,13 +348,13 @@ function processQuestionPost()
 	$userID = $_SESSION['userID'];
 	$langID = $_SESSION['userLangID'];
 	$languageName = getLanguageName($langID);
-	
+
 	if($title == "" || $content == "")
 	{
 	    print "Your post must have a title and content before you submit.<br>\n";
 	    showQuestionPostForm($content);
 	}
-	
+
 	else
 	{
 	    createQuestion($title, $content, $langID, $userID);
@@ -412,7 +413,7 @@ function showUserPost()
 	//print "You're trying to view a post!<br/>\n";
 	$postID = $_POST['postID'];
 	//print "The post you are trying to view is ".$postID."<br/>\n";
-	
+
 	$postOpen = checkIfOpen($postID);
 	if($postOpen)
 	{
@@ -435,7 +436,7 @@ function showUserPost()
 	print "<h5> <input type='submit' name='viewMyPosts' value='Return' /></h5>\n";
 	print "</form>\n</div>\n";
 	print "-------------------------------------------------------------------------------------------------------------------";
-	
+
 	$answerIDs = getAllAnswers($postID);
 	if(count($answerIDs) > 0)
 	{
@@ -448,7 +449,7 @@ function showUserPost()
 			print "<br/><br/>-------------------------------------------------------------------------------------------------------------------";
 		}
 	}
-	
+
 	else
 	{
 		print "<br/><br/>There are no answers for this post yet!";
@@ -464,7 +465,7 @@ function closeUserPost()
     print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewMyPosts' value='Return' /></h5>\n";
 	print "</form>\n</div>\n";
-    
+
 }
 
 function viewLanguageBoard()
@@ -510,8 +511,9 @@ function showPost()
 {
 	//print "You're trying to view a post!<br/>\n";
 	$postID = $_POST['postID'];
+  $userID = $_SESSION['userID'];
 	//print "The post you are trying to view is ".$postID."<br/>\n";
-	
+
 	$post = getQuestion($postID);
 	print "<strong>".$post['title']."</strong>\n";
 	print "<br/><br/>".$post['content']."<br/><br/>\n";
@@ -519,23 +521,32 @@ function showPost()
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewBoard' value='Return' /></h5>\n";
 	print "<h5> <input type='submit' name='createAnswer' value='Answer' /></h5>\n";
+  //print "<h5> <input type='submit' name='reportPost' value='Report' /></h5>\n";
 	print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
 	print "</form>\n</div>\n";
 	print "-------------------------------------------------------------------------------------------------------------------";
-	
+
 	$answerIDs = getAllAnswers($postID);
-	if(count($answerIDs) > 0)
+	if(count($answerIDs) > 0) //answers exist for this question
 	{
-		for($i = 0; $i < count($answerIDs); $i++)
+		for($i = 0; $i < count($answerIDs); $i++) //prints answers out in order of oldest to newest by date
 		{
 			$answer = getAnswer($answerIDs[$i]);
 			//$content = $answer['content'];
 			print "<br/><br/>".$answer['content']."\n";
 			print "<br/><br/>Posted by ".$answer['userNickname']." on: ".$answer['datetime']."\n";
-			print "<br/><br/>-------------------------------------------------------------------------------------------------------------------";
+      print "<div> <form method='post' action='$self' >\n";
+      if(!userUpvotedAnswer($userID, $answerIDs[$i]))
+      {
+        print "<h5> <input type='submit' name='upvoteAnswer' value='Upvote' /></h5?\n";
+      }
+      print "<h5> <input type='hidden' name='answerID' value='".$answerIDs[$i]."' /></h5>\n";
+      print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+      print "</form>\n</div>\n";
+			print "-------------------------------------------------------------------------------------------------------------------";
 		}
 	}
-	
+
 	else
 	{
 		print "<br/><br/>There are no answers for this post yet!";
@@ -545,19 +556,19 @@ function showPost()
 function showAnswerPostForm()
 {
 	$self = $_SERVER['PHP_SELF'];
-    $languageName = getLanguageName($_SESSION['userLangID']);
+  $languageName = getLanguageName($_SESSION['userLangID']);
 	$postID = $_POST['postID'];
 	$post = getQuestion($postID);
-    
-    print "<strong>Please fill in the information below to create your answer.</strong><br><br>\n";
-    print "<strong>Board:</strong> ".$languageName."<br><br>\n";
+
+  print "<strong>Please fill in the information below to create your answer.</strong><br><br>\n";
+  print "<strong>Board:</strong> ".$languageName."<br><br>\n";
 	print "<strong>Question:</strong> ".$post['content']."<br/><br/>\n";
-    print "<div> <form method='post' action='$self' >\n";
-    print "<strong>Answer: <textarea name='theContent' rows='8' cols='100'>\n".
-		  " </textarea> </h3>\n";
+  print "<div> <form method='post' action='$self' >\n";
+  print "<strong>Answer: <textarea name='theContent' rows='8' cols='100'>\n";
+  print " </textarea> </h3>\n";
 	print "<h3> <input type='hidden' name='postID' value='".$postID."' /></h3>\n";
-	print "<h3> <input type='submit' name='submitAnswerPost' ".
-		  " value='Submit' /> </strong>\n";
+	print "<h3> <input type='submit' name='submitAnswerPost' ";
+  print " value='Submit' /> </strong>\n";
 	print "</form>\n</div>\n";
 }
 
@@ -567,21 +578,41 @@ function processAnswerPost()
 	$userID = $_SESSION['userID'];
 	$postID = $_POST['postID'];
 	$post = getQuestion($postID);
-	
+
 	if($content == "")
 	{
 	    print "Your answer must have content before you submit.<br>\n";
-	    showAnswerPostForm();
+      print "<div> <form method='post' action='$self' >\n";
+      print "<h5> <input type='submit' name='createAnswer' ";
+      print " value='Return' /></h5>\n";
+      print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+	    print "</form>\n</div>\n";
 	}
-	
+
 	else
 	{
 	    createAnswer($content, $userID, $postID);
 	    print "Your answer has been added to the question titled <strong>".$post['title']." </strong>!<br><br>\n";
-	    print "Click below to return to the board.<br><br>\n";
+	    //print "Click below to return to the board.<br><br>\n";
 	    print "<div> <form method='post' action='$self' >\n";
-        print "<h5> <input type='submit' name='viewBoard' ".
+        print "<h5> <input type='submit' name='viewPost' ".
 	        " value='Return' /></h5>\n";
+      print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
 	    print "</form>\n</div>\n";
 	}
+}
+
+function processUpvote()
+{
+  $self = $_SERVER['PHP_SELF'];
+  $userID = $_SESSION['userID'];
+  $postID = $_POST['postID'];
+  $answerID = $_POST['answerID'];
+  upvoteAnswer($userID, $answerID);
+
+  print "Answer succesfully upvoted.<br/><br/>";
+  print "<div> <form method='post' action='$self' >\n";
+  print "<h5> <input type='submit' name='viewPost' value='Return' /></h5>\n";
+  print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+  print "</form>\n</div>\n";
 }
