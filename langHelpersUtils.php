@@ -343,11 +343,12 @@ function getAnswer($answerID)
 {
 	$conn = connectToDB();
     $answerInfo = array();
-    $query = "SELECT answerDateTime, answerContent FROM Answer WHERE answerID = '".$answerID."';";
+    $query = "SELECT answerDateTime, answerContent, numUpvotes FROM Answer WHERE answerID = '".$answerID."';";
     $result = mysqli_query($conn, $query);
     $row = mysqli_fetch_assoc($result);
     $answerInfo['datetime'] = $row['answerDateTime'];
 	$answerInfo['content'] = $row['answerContent'];
+	$answerInfo['numUpvotes'] = $row['numUpvotes'];
 
 	$query2 = "SELECT userID FROM UserAnswer WHERE answerID = '".$answerID."';";
 	$result2 = mysqli_query($conn, $query2);

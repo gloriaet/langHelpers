@@ -446,6 +446,7 @@ function showUserPost()
 			//$content = $answer['content'];
 			print "<br/><br/>".$answer['content']."\n";
 			print "<br/><br/>Posted by ".$answer['userNickname']." on: ".$answer['datetime']."\n";
+			print "<br/>Upvotes: ".$answer['numUpvotes']."\n";
 			print "<br/><br/>-------------------------------------------------------------------------------------------------------------------";
 		}
 	}
@@ -535,14 +536,15 @@ function showPost()
 			//$content = $answer['content'];
 			print "<br/><br/>".$answer['content']."\n";
 			print "<br/><br/>Posted by ".$answer['userNickname']." on: ".$answer['datetime']."\n";
-      print "<div> <form method='post' action='$self' >\n";
-      if(!userUpvotedAnswer($userID, $answerIDs[$i]))
-      {
-        print "<h5> <input type='submit' name='upvoteAnswer' value='Upvote' /></h5?\n";
-      }
-      print "<h5> <input type='hidden' name='answerID' value='".$answerIDs[$i]."' /></h5>\n";
-      print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
-      print "</form>\n</div>\n";
+			print "<br/>Upvotes: ".$answer['numUpvotes']."\n";
+			print "<div> <form method='post' action='$self' >\n";
+			if(!userUpvotedAnswer($userID, $answerIDs[$i]))
+			{
+				print "<h5> <input type='submit' name='upvoteAnswer' value='Upvote' /></h5?\n";
+			}
+			print "<h5> <input type='hidden' name='answerID' value='".$answerIDs[$i]."' /></h5>\n";
+			print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+			print "</form>\n</div>\n";
 			print "-------------------------------------------------------------------------------------------------------------------";
 		}
 	}

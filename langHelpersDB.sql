@@ -49,7 +49,7 @@ CREATE TABLE Answer (
 	answerID int auto_increment not null,
 	answerContent varchar(500) not null,
 	answerDateTime datetime not null,
-  numUpvotes int not null,
+	numUpvotes int not null,
 	questionID int,
 	primary key (answerID),
 	foreign key (questionID) references Question (questionID) on delete cascade
@@ -64,9 +64,9 @@ CREATE TABLE UserAnswer (
 	) Engine = InnoDB;
 
 CREATE TABLE UserUpvotedAnswer (
-  userID int,
-  answerUpvotedID int,
-  primary key (userID, answerUpvotedID),
-  foreign key (userID) references User (userID) on delete cascade,
-  foreign key (answerUpvotedID) references Answer (answerID) on delete cascade
-  ) Engine = InnoDB;
+	userID int,
+	answerUpvotedID int,
+	primary key (userID, answerUpvotedID),
+	foreign key (userID) references User (userID) on delete cascade,
+	foreign key (answerUpvotedID) references Answer (answerID) on delete cascade
+	) Engine = InnoDB;
