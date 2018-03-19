@@ -84,6 +84,28 @@ function checkUser($email, $password)
     return $safeLogIn;
 }
 
+//Authentication for Moderator log in attempts
+function checkModerator($email, $password)
+{
+    $conn = connectToDB();
+    $safeLogIn = true; //indicates proper log in
+    $query = "SELECT modPassword FROM Moderator WHERE modEmail = '".$email."';";
+    $result = mysqli_query($conn, $query);
+    if(mysqli_num_rows($result) == 0) //this account does not exist, no log in
+    {
+        $safeLogIn = false;
+    }
+    else
+    {
+        $row = mysqli_fetch_assoc($result);
+        if($row['modPassword'] != $password) //improper log in - password invalid
+        {
+            $safeLogIn = false;
+        }
+    }
+    return $safeLogIn;
+}
+
 //Checks if user has logged in for the first time - at first log in, user chooses desired language
 function userChoseFirstLanguage($userID)
 {

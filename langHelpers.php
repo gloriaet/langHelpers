@@ -47,6 +47,18 @@ if(!isset($_SESSION['userID']) && !isset($_SESSION['modID']))
     }
 }
 
+if(isset($_SESSION['moderator']))
+{
+	if($_POST['logOut'])
+	{
+		doLogout();
+	}
+	else
+	{
+		displayModeratorHome();
+	}
+}
+
 if(isset($_SESSION['userID']))
 {
     if($_POST['logOut'])
@@ -184,6 +196,10 @@ function checkCredentials()
 	    $_SESSION['userID'] = $id;
 	    $_SESSION['userLangID'] = getUserLanguageID($id);
 	}
+	else if(checkModerator($email, $password))
+	{
+		$_SESSION['moderator'] = true;
+	}
 	else
 	{
 	    print "Invalid credentials. Please try again.\n";
@@ -314,6 +330,16 @@ function changeUserLanguage()
     setUserLanguage($userID, $languageID);
 
     $_SESSION['userLangID'] = getUserLanguageID($userID);
+}
+
+function displayModeratorHome()
+{
+    $self = $_SERVER['PHP_SELF'];
+
+    print "<strong>Welcome Moderator!</strong><br>\n";
+    print "<div> <form method='post' action='$self' >\n";
+    print "<h5> <input type='submit' name='logOut' value='Log Out' /></h5>\n";
+	print "</form>\n</div>\n";
 }
 
 function displayUserHome()

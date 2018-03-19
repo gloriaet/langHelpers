@@ -11,6 +11,12 @@ CREATE TABLE User (
     primary key (userID),
     unique key (userEmail, userNickname)
     ) Engine = InnoDB;
+	
+CREATE TABLE Moderator (
+	modEmail varchar(100) not null,
+	modPassword varchar(30) not null,
+	primary key (modEmail)
+	) Engine = InnoDB;
 
 CREATE TABLE Language (
     languageID int AUTO_INCREMENT not null,
