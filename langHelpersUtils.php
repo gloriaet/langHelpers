@@ -451,26 +451,118 @@ function userReportedAnswer($userID, $answerID)
 function reportQuestion($content, $reporterID, $reportedID, $postID)
 {
 	$conn = connectToDB();
-	$query = "INSERT INTO AbuseReport VALUES (null, '".$content."', 0);";
+	$query = "INSERT INTO AbuseReport VALUES (null, '".$content."', 1, 0);";
 	mysqli_query($conn, $query);
+	$reportID = mysqli_insert_id($conn);
 
 	$queryLink = "INSERT INTO UserReportedQuestion VALUES ('".$reporterID."', '".$postID."');";
 	mysqli_query($conn, $queryLink);
 	
-	$queryLink2 = "INSERT INTO UserAbusiveQuestion VALUES ('".$reportedID."', '".$postID."');";
+	$queryLink2 = "INSERT INTO UserAbusiveQuestion VALUES ('".$reportedID."', '".$reportID."', '".$postID."');";
 	mysqli_query($conn, $queryLink2);
 }
 
 function reportAnswer($content, $reporterID, $reportedID, $answerID)
 {
 	$conn = connectToDB();
-	$query = "INSERT INTO AbuseReport VALUES (null, '".$content."', 0);";
+	$query = "INSERT INTO AbuseReport VALUES (null, '".$content."', 0, 0);";
 	mysqli_query($conn, $query);
+	$reportID = mysqli_insert_id($conn);
+	
+	$queryLink2 = "INSERT INTO UserAbusiveAnswer VALUES ('".$reportedID."', '".$reportID."', '".$answerID."');";
+	mysqli_query($conn, $queryLink2);
 
 	$queryLink = "INSERT INTO UserReportedAnswer VALUES ('".$reporterID."', '".$answerID."');";
 	mysqli_query($conn, $queryLink);
+}
+
+function getOpenAbuseReports()
+{
+	$conn = connectToDB();
+	$query = "SELECT abuseID FROM AbuseReport WHERE cleared = 0;";
+	$abuseIDs = array();
+	$result = mysqli_query($conn, $query);
+	if (mysqli_num_rows($result) > 0)
+	{
+		while ($row = mysqli_fetch_assoc($result))
+		{
+		    $id = intval($row["abuseID"]);
+            array_push($abuseIDs, $id);
+		}
+	}
+	return $abuseIDs;
+}
+
+function getAbuseReportContent($abuseID)
+{
+	$conn = connectToDB();
+	$query = "SELECT abuseContent FROM AbuseReport WHERE abuseID = '".$abuseID."';";
+	$result = mysqli_query($conn, $query);
+	$row = mysqli_fetch_assoc($result);
+    $reportContent = $row['abuseContent'];
+	return $reportContent;
+}
+
+function getAbuseInfo($abuseID)
+{
+	$conn = connectToDB();
+	$abuseInfo = array();
+	$abuseInfo['content'] = getAbuseReportContent($abuseID);
 	
-	$queryLink2 = "INSERT INTO UserAbusiveAnswer VALUES ('".$reportedID."', '".$answerID."');";
-	mysqli_query($conn, $queryLink2);
+	$checkPostTypeQuery = "SELECT question FROM AbuseReport WHERE abuseID = '".$abuseID."';";
+	$result = mysqli_query($conn, $checkPostTypeQuery);
+	$row = mysqli_fetch_assoc($result);
+	$postTypeID = intval($row['question']);
+	if($postTypeID == 1)
+	{
+		$postIDQuery = "SELECT userID, abusivePostID FROM UserAbusiveQuestion WHERE abuseReportID = '".$abuseID."';";
+		$result2 = mysqli_query($conn, $postIDQuery);
+		$row2 = mysqli_fetch_assoc($result2);
+		$posterEmail = getUserEmail(intval($row2['userID']));
+		$abuseInfo['email'] = $posterEmail;
+		$postContent = getQuestionContent(intval($row2['abusivePostID']));
+		$abuseInfo['postContent'] = $postContent;
+	}
+	else
+	{
+		$postIDQuery = "SELECT abusivePostID, userID FROM UserAbusiveAnswer WHERE abuseReportID = '".$abuseID."';";
+		$result3 = mysqli_query($conn, $postIDQuery);
+		$row3 = mysqli_fetch_assoc($result3);
+		$posterEmail = getUserEmail(intval($row3['userID']));
+		$abuseInfo['email'] = $posterEmail;
+		$postContent = getAnswerContent(intval($row3['abusivePostID']));
+		$abuseInfo['postContent'] = $postContent;
+	}
+	return $abuseInfo;
+}
+
+function getUserEmail($userID)
+{
+	$conn = connectToDB();
+	$query = "SELECT userEmail FROM User WHERE userID = '".$userID."';";
+	$result = mysqli_query($conn, $query);
+	$row = mysqli_fetch_assoc($result);
+	$userEmail = $row['userEmail'];
+	return $userEmail;
+}
+
+function getQuestionContent($questionID)
+{
+	$conn = connectToDB();
+	$query = "SELECT questionContent FROM Question WHERE questionID = '".$questionID."';";
+	$result = mysqli_query($conn, $query);
+	$row = mysqli_fetch_assoc($result);
+	$questionContent = $row['questionContent'];
+	return $questionContent;
+}
+
+function getAnswerContent($answerID)
+{
+	$conn = connectToDB();
+	$query = "SELECT answerContent FROM Answer WHERE answerID = '".$answerID."';";
+	$result = mysqli_query($conn, $query);
+	$row = mysqli_fetch_assoc($result);
+	$answerContent = $row['answerContent'];
+	return $answerContent;
 }
 ?>

@@ -80,15 +80,18 @@ CREATE TABLE UserUpvotedAnswer (
 CREATE TABLE AbuseReport (
 	abuseID int auto_increment not null,
 	abuseContent varchar(200) not null,
+	question boolean not null,
 	cleared boolean not null,
 	primary key (abuseID)
 	) Engine = InnoDB;
 	
 CREATE TABLE UserAbusiveQuestion (
 	userID int,
+	abuseReportID int,
 	abusivePostID int,
-	primary key (userID, abusivePostID),
+	primary key (userID, abuseReportID, abusivePostID),
 	foreign key (userID) references User (userID) on delete cascade,
+	foreign key (abuseReportID) references AbuseReport (abuseID) on delete cascade,
     foreign key (abusivePostID) references Question (questionID) on delete cascade
 	) Engine = InnoDB;
 	
@@ -110,8 +113,10 @@ CREATE TABLE UserReportedAnswer (
 
 CREATE TABLE UserAbusiveAnswer (
 	userID int,
+	abuseReportID int,
 	abusivePostID int,
-	primary key (userID, abusivePostID),
+	primary key (userID, abuseReportID, abusivePostID),
 	foreign key (userID) references User (userID) on delete cascade,
+	foreign key (abuseReportID) references AbuseReport (abuseID) on delete cascade,
     foreign key (abusivePostID) references Answer (answerID) on delete cascade
 	) Engine = InnoDB;

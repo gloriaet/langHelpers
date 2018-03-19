@@ -53,6 +53,17 @@ if(isset($_SESSION['moderator']))
 	{
 		doLogout();
 	}
+	
+	else if($_POST['viewReports'])
+	{
+		viewAbuseReports();
+	}
+	
+	else if ($_POST['viewDetailedReport'])
+	{
+		viewDetailedAbuseReport();
+	}
+	
 	else
 	{
 		displayModeratorHome();
@@ -338,6 +349,7 @@ function displayModeratorHome()
 
     print "<strong>Welcome Moderator!</strong><br>\n";
     print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='viewReports' value='View Reports' /></h5>\n";
     print "<h5> <input type='submit' name='logOut' value='Log Out' /></h5>\n";
 	print "</form>\n</div>\n";
 }
@@ -779,9 +791,56 @@ function processAnswerAbuseReport()
 	    print "Your abuse report has been received! <br><br>\n";
 	    //print "Click below to return to the board.<br><br>\n";
 	    print "<div> <form method='post' action='$self' >\n";
-        print "<h5> <input type='submit' name='viewPost' ".
-	        " value='Return' /></h5>\n";
-      print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+        print "<h5> <input type='submit' name='viewPost' value='Return' /></h5>\n";
+		print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
 	    print "</form>\n</div>\n";
 	}
+}
+
+function viewAbuseReports()
+{
+    $abuseIDArray = getOpenAbuseReports();
+    if(count($abuseIDArray) > 0)
+    {
+        print "<h3>Here are the currently open abuse reports.</h3>\n";
+        print "<table>\n";
+        print "<tr>\n<th>Report Content</th>\n";
+		print "<th>View Details</th>\n</tr>\n";
+        for($i = count($abuseIDArray) - 1; $i >= 0; $i--)
+        {
+            $abuseID = $abuseIDArray[$i];
+            $abuseContent = getAbuseReportContent($abuseID);
+            print "<tr>\n<td>".$abuseContent."</td>\n";
+			print "<td><div> <form method='post' action='$self' >\n";
+			print "<h5> <input type='submit' name='viewDetailedReport' value='View' />\n";
+			print "<input type='hidden' name='abuseID' value=".$abuseID." /></h5>\n";
+			print "</form>\n</div></td>\n</tr>\n";
+        }
+        print "</table>\n";
+    }
+    else
+    {
+        print "<h3> There are no active abuse reports! </h3>\n";
+    }
+	print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='modHome' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
+}
+
+function viewDetailedAbuseReport()
+{
+	$abuseID = $_POST['abuseID'];
+	$abuseInfo = getAbuseInfo($abuseID);
+	$abuserEmail = $abuseInfo['email'];
+	$abuseReportContent = $abuseInfo['content'];
+	$abusivePostContent = $abuseInfo['postContent'];
+	
+	print "<strong>Abuser: </strong>".$abuserEmail."<br/><br/>\n";
+	print "<strong>Report: </strong>".$abuseReportContent."<br/><br/>\n";
+	print "<strong>Original Post Content: </strong>".$abusivePostContent."<br/><br/>\n";
+	print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='clearAbuseReport' value='Clear' /></h5>\n";
+	print "<h5> <input type='submit' name='deletePost' value='Delete Post' /></h5>\n";
+	print "<h5> <input type='submit' name='viewAbuseReports' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
 }
