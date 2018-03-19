@@ -149,6 +149,16 @@ function getUserID($email)
     return $id;
 }
 
+function getUserIDByNickname($nickname)
+{
+    $conn = connectToDB();
+    $query = "SELECT userID FROM User WHERE userNickname = '".$nickname."';";
+    $result = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($result);
+    $id = $row['userID'];
+    return $id;
+}
+
 //Retrieves the languageID of the language the user is currently working with
 function getUserLanguageID($id)
 {
@@ -384,5 +394,61 @@ function userUpvotedAnswer($userID, $answerID)
   }
 
   return $alreadyUpvoted;
+}
+
+function userReportedQuestion($userID, $postID)
+{
+	$conn = connectToDB();
+  $query = "SELECT * FROM UserReportedQuestion WHERE userID = '".$userID."' AND questionReportedID = '".$postID."';";
+  $result = mysqli_query($conn, $query);
+  $alreadyReported = false; //user has not reported the question
+
+  if(mysqli_num_rows($result) > 0) //user has reported the question already
+  {
+      $alreadyReported = true;
+  }
+
+  return $alreadyReported;
+}
+
+function userReportedAnswer($userID, $answerID)
+{
+	$conn = connectToDB();
+  $query = "SELECT * FROM UserReportedAnswer WHERE userID = '".$userID."' AND answerReportedID = '".$answerID."';";
+  $result = mysqli_query($conn, $query);
+  $alreadyReported = false; //user has not reported the answer
+
+  if(mysqli_num_rows($result) > 0) //user has reported the answer already
+  {
+      $alreadyReported = true;
+  }
+
+  return $alreadyReported;	
+}
+
+function reportQuestion($content, $reporterID, $reportedID, $postID)
+{
+	$conn = connectToDB();
+	$query = "INSERT INTO AbuseReport VALUES (null, '".$content."', 0);";
+	mysqli_query($conn, $query);
+
+	$queryLink = "INSERT INTO UserReportedQuestion VALUES ('".$reporterID."', '".$postID."');";
+	mysqli_query($conn, $queryLink);
+	
+	$queryLink2 = "INSERT INTO UserAbusiveQuestion VALUES ('".$reportedID."', '".$postID."');";
+	mysqli_query($conn, $queryLink2);
+}
+
+function reportAnswer($content, $reporterID, $reportedID, $answerID)
+{
+	$conn = connectToDB();
+	$query = "INSERT INTO AbuseReport VALUES (null, '".$content."', 0);";
+	mysqli_query($conn, $query);
+
+	$queryLink = "INSERT INTO UserReportedAnswer VALUES ('".$reporterID."', '".$answerID."');";
+	mysqli_query($conn, $queryLink);
+	
+	$queryLink2 = "INSERT INTO UserAbusiveAnswer VALUES ('".$reportedID."', '".$answerID."');";
+	mysqli_query($conn, $queryLink2);
 }
 ?>

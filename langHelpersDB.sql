@@ -70,3 +70,42 @@ CREATE TABLE UserUpvotedAnswer (
 	foreign key (userID) references User (userID) on delete cascade,
 	foreign key (answerUpvotedID) references Answer (answerID) on delete cascade
 	) Engine = InnoDB;
+	
+CREATE TABLE AbuseReport (
+	abuseID int auto_increment not null,
+	abuseContent varchar(200) not null,
+	cleared boolean not null,
+	primary key (abuseID)
+	) Engine = InnoDB;
+	
+CREATE TABLE UserAbusiveQuestion (
+	userID int,
+	abusivePostID int,
+	primary key (userID, abusivePostID),
+	foreign key (userID) references User (userID) on delete cascade,
+    foreign key (abusivePostID) references Question (questionID) on delete cascade
+	) Engine = InnoDB;
+	
+CREATE TABLE UserReportedQuestion (
+	userID int,
+	questionReportedID int,
+	primary key (userID, questionReportedID),
+	foreign key (userID) references User (userID) on delete cascade,
+	foreign key (questionReportedID) references Question (questionID) on delete cascade
+	) Engine = InnoDB;
+	
+CREATE TABLE UserReportedAnswer (
+	userID int,
+	answerReportedID int,
+	primary key (userID, answerReportedID),
+	foreign key (userID) references User (userID) on delete cascade,
+	foreign key (answerReportedID) references Answer (answerID) on delete cascade
+	) Engine = InnoDB;
+
+CREATE TABLE UserAbusiveAnswer (
+	userID int,
+	abusivePostID int,
+	primary key (userID, abusivePostID),
+	foreign key (userID) references User (userID) on delete cascade,
+    foreign key (abusivePostID) references Answer (answerID) on delete cascade
+	) Engine = InnoDB;

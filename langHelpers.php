@@ -19,7 +19,7 @@ print "<div class='content'>\n";
 
 session_start();
 
-if(!isset($_SESSION['userID']))
+if(!isset($_SESSION['userID']) && !isset($_SESSION['modID']))
 {
     if(empty($_POST) || $_POST['returnHome'])
     {
@@ -108,6 +108,26 @@ if(isset($_SESSION['userID']))
     {
         processUpvote();
     }
+	
+	else if($_POST['reportQuestionAbuse'])
+	{
+		showQuestionAbuseReportForm();
+	}
+	
+	else if($_POST['submitQuestionAbuseReport'])
+	{
+		processQuestionAbuseReport();
+	}
+	
+	else if($_POST['reportAnswerAbuse'])
+	{
+		showAnswerAbuseReportForm();
+	}
+	
+	else if($_POST['submitAnswerAbuseReport'])
+	{
+		processAnswerAbuseReport();
+	}
 
     else if($_POST['submitLanguage'])
     {
@@ -512,7 +532,7 @@ function showPost()
 {
 	//print "You're trying to view a post!<br/>\n";
 	$postID = $_POST['postID'];
-  $userID = $_SESSION['userID'];
+	$userID = $_SESSION['userID'];
 	//print "The post you are trying to view is ".$postID."<br/>\n";
 
 	$post = getQuestion($postID);
@@ -522,8 +542,12 @@ function showPost()
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewBoard' value='Return' /></h5>\n";
 	print "<h5> <input type='submit' name='createAnswer' value='Answer' /></h5>\n";
-  //print "<h5> <input type='submit' name='reportPost' value='Report' /></h5>\n";
+	if(!userReportedQuestion($userID, $postID))
+	{
+		print "<h5> <input type='submit' name='reportQuestionAbuse' value='Report Abuse' /></h5>\n";
+	}
 	print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+	print "<h5> <input type='hidden' name='questionPosterName' value='".$post['userNickname']."' /></h5>\n";
 	print "</form>\n</div>\n";
 	print "-------------------------------------------------------------------------------------------------------------------";
 
@@ -542,8 +566,13 @@ function showPost()
 			{
 				print "<h5> <input type='submit' name='upvoteAnswer' value='Upvote' /></h5?\n";
 			}
+			if(!userReportedAnswer($userID, $answerIDs[$i]))
+			{
+				print "<h5> <input type='submit' name='reportAnswerAbuse' value='Report Abuse' /></h5?\n";
+			}
 			print "<h5> <input type='hidden' name='answerID' value='".$answerIDs[$i]."' /></h5>\n";
 			print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+			print "<h5> <input type='hidden' name='answerPosterName' value='".$answer['userNickname']."' /></h5>\n";
 			print "</form>\n</div>\n";
 			print "-------------------------------------------------------------------------------------------------------------------";
 		}
@@ -558,7 +587,7 @@ function showPost()
 function showAnswerPostForm()
 {
 	$self = $_SERVER['PHP_SELF'];
-  $languageName = getLanguageName($_SESSION['userLangID']);
+	$languageName = getLanguageName($_SESSION['userLangID']);
 	$postID = $_POST['postID'];
 	$post = getQuestion($postID);
 
@@ -617,4 +646,116 @@ function processUpvote()
   print "<h5> <input type='submit' name='viewPost' value='Return' /></h5>\n";
   print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
   print "</form>\n</div>\n";
+}
+
+function showQuestionAbuseReportForm()
+{
+	$self = $_SERVER[PHP_SELF];
+	$postID = $_POST['postID'];
+	$post = getQuestion($postID);
+	$posterName = $_POST['questionPosterName'];
+	$posterID = getUserIDByNickname($posterName);
+	
+	print "<strong>Please fill in the information below to report this post for abuse.</strong><br><br>\n";
+	print "<strong>Question:</strong> ".$post['content']."<br/><br/>\n";
+	print "<div> <form method='post' action='$self' >\n";
+	print "<strong>Report: <textarea name='theContent' rows='8' cols='100'>\n";
+	print " </textarea> </h3>\n";
+	print "<h3> <input type='hidden' name='postID' value='".$postID."' /></h3>\n";
+	print "<h3> <input type='hidden' name='posterID' value='".$posterID."' /></h3>\n";
+	print "<h3> <input type='hidden' name='questionPosterName' value='".$posterName."' /></h3>\n";
+	print "<h3> <input type='submit' name='submitQuestionAbuseReport' ";
+	print " value='Submit' /> </strong>\n";
+	print "</form>\n</div>\n";
+}
+
+function processQuestionAbuseReport()
+{
+	$content = htmlentities($_POST['theContent'], ENT_QUOTES);
+	$userID = $_SESSION['userID'];
+	$postID = $_POST['postID'];
+	$posterName = $_POST['questionPosterName'];
+	$post = getQuestion($postID);
+	$posterID = $_POST['posterID'];
+
+	if($content == "")
+	{
+	    print "Your report must have content before you submit.<br>\n";
+		print "<div> <form method='post' action='$self' >\n";
+		print "<h5> <input type='submit' name='reportQuestionAbuse' ";
+		print " value='Return' /></h5>\n";
+		print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+		print "<h5> <input type='hidden' name='questionPosterName' value='".$posterName."' /></h5>\n";
+	    print "</form>\n</div>\n";
+	}
+
+	else
+	{
+	    reportQuestion($content, $userID, $posterID, $postID);
+	    print "Your abuse report has been received! <br><br>\n";
+	    //print "Click below to return to the board.<br><br>\n";
+	    print "<div> <form method='post' action='$self' >\n";
+        print "<h5> <input type='submit' name='viewPost' ".
+	        " value='Return' /></h5>\n";
+		print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+	    print "</form>\n</div>\n";
+	}
+}
+
+function showAnswerAbuseReportForm()
+{
+	$self = $_SERVER[PHP_SELF];
+	$postID = $_POST['postID'];
+	$answerID = $_POST['answerID'];
+	$answer = getAnswer($answerID);
+	$posterName = $_POST['answerPosterName'];
+	$posterID = getUserIDByNickname($posterName);
+	
+	print "<strong>Please fill in the information below to report this post for abuse.</strong><br><br>\n";
+	print "<strong>Answer:</strong> ".$answer['content']."<br/><br/>\n";
+	print "<div> <form method='post' action='$self' >\n";
+	print "<strong>Report: <textarea name='theContent' rows='8' cols='100'>\n";
+	print " </textarea> </h3>\n";
+	print "<h3> <input type='hidden' name='postID' value='".$postID."' /></h3>\n";
+	print "<h3> <input type='hidden' name='answerID' value='".$answerID."' /></h3>\n";
+	print "<h3> <input type='hidden' name='posterID' value='".$posterID."' /></h3>\n";
+	print "<h3> <input type='hidden' name='answerPosterName' value='".$posterName."' /></h3>\n";
+	print "<h3> <input type='submit' name='submitAnswerAbuseReport' ";
+	print " value='Submit' /> </strong>\n";
+	print "</form>\n</div>\n";
+}
+
+function processAnswerAbuseReport()
+{
+	$content = htmlentities($_POST['theContent'], ENT_QUOTES);
+	$userID = $_SESSION['userID'];
+	$postID = $_POST['postID'];
+	$answerID = $_POST['answerID'];
+	$posterName = $_POST['answerPosterName'];
+	$post = getAnswer($answerID);
+	$posterID = $_POST['posterID'];
+
+	if($content == "")
+	{
+		print "Your report must have content before you submit.<br>\n";
+		print "<div> <form method='post' action='$self' >\n";
+		print "<h5> <input type='submit' name='reportAnswerAbuse' ";
+		print " value='Return' /></h5>\n";
+		print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+		print "<h5> <input type='hidden' name='answerID' value='".$answerID."' /></h5>\n";
+		print "<h5> <input type='hidden' name='answerPosterName' value='".$posterName."' /></h5>\n";
+	    print "</form>\n</div>\n";
+	}
+
+	else
+	{
+	    reportAnswer($content, $userID, $posterID, $answerID);
+	    print "Your abuse report has been received! <br><br>\n";
+	    //print "Click below to return to the board.<br><br>\n";
+	    print "<div> <form method='post' action='$self' >\n";
+        print "<h5> <input type='submit' name='viewPost' ".
+	        " value='Return' /></h5>\n";
+      print "<h5> <input type='hidden' name='postID' value='".$postID."' /></h5>\n";
+	    print "</form>\n</div>\n";
+	}
 }
