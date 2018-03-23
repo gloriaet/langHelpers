@@ -120,3 +120,17 @@ CREATE TABLE UserAbusiveAnswer (
 	foreign key (abuseReportID) references AbuseReport (abuseID) on delete cascade,
     foreign key (abusivePostID) references Answer (answerID) on delete cascade
 	) Engine = InnoDB;
+	
+CREATE TABLE AbusivePostHistory (
+	abuseHistoryID int auto_increment not null,
+	abusivePostContent varchar(500) not null,
+	primary key (abuseHistoryID)
+	) Engine = InnoDB;
+	
+CREATE TABLE UserAbuseHistory (
+	userEmail varchar(100),
+	abuseHistoryID int,
+	primary key (userEmail, abuseHistoryID),
+	foreign key (userEmail) references User (userEmail) on delete cascade,
+	foreign key (abuseHistoryID) references AbusivePostHistory (abuseHistoryID) on delete cascade
+	) Engine = InnoDB;

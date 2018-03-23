@@ -572,4 +572,47 @@ function clearAbuse($abuseID)
 	$query = "UPDATE AbuseReport SET cleared = 1 WHERE abuseID = '".$abuseID."';";
 	mysqli_query($conn, $query);
 }
+
+function deletePost($abuseID)
+{
+    $conn = connectToDB();
+	$checkPostTypeQuery = "SELECT question FROM AbuseReport WHERE abuseID = '".$abuseID."';";
+	$result = mysqli_query($conn, $checkPostTypeQuery);
+	$row = mysqli_fetch_assoc($result);
+	$postTypeID = intval($row['question']);
+	$posterEmail = "";
+	$posterContent = "";
+	$deletePostQuery = "";
+	
+	if($postTypeID == 1)
+	{
+		$postIDQuery = "SELECT userID, abusivePostID FROM UserAbusiveQuestion WHERE abuseReportID = '".$abuseID."';";
+		$result2 = mysqli_query($conn, $postIDQuery);
+		$row2 = mysqli_fetch_assoc($result2);
+		$abuserID = intval($row2['userID']);
+		$posterEmail = getUserEmail($abuserID);
+		$abusivePostID = intval($row2['abusivePostID']);
+		$postContent = getQuestionContent($abusivePostID);
+		$deletePostQuery = "DELETE FROM Question WHERE questionID = '".$abusivePostID."';";
+	}
+	else
+	{
+		$postIDQuery = "SELECT abusivePostID, userID FROM UserAbusiveAnswer WHERE abuseReportID = '".$abuseID."';";
+		$result3 = mysqli_query($conn, $postIDQuery);
+		$row3 = mysqli_fetch_assoc($result3);
+		$abuserID = intval($row3['userID']);
+		$posterEmail = getUserEmail($abuserID);
+		$abusivePostID = intval($row3['abusivePostID']);
+		$postContent = getAnswerContent($abusivePostID);
+		$deletePostQuery = "DELETE FROM Answer WHERE answerID = '".$abusivePostID."';";
+	}
+	
+	mysqli_query($conn, $deletePostQuery);
+	$saveRecordQuery = "INSERT INTO AbusivePostHistory VALUES (null, '".$postContent."');";
+	mysqli_query($conn, $saveRecordQuery);
+	
+	$recordID = mysqli_insert_id($conn);
+	$recordLinkQuery = "INSERT INTO UserAbuseHistory VALUES ('".$posterEmail."', '".$recordID."');";
+	mysqli_query($conn, $recordLinkQuery);
+}
 ?>

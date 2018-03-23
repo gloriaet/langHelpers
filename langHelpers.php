@@ -69,6 +69,11 @@ if(isset($_SESSION['moderator']))
 		clearAbuseReport();
 	}
 	
+	else if($_POST['deletePost'])
+	{
+		deleteAbusivePost();
+	}
+	
 	else
 	{
 		displayModeratorHome();
@@ -856,6 +861,19 @@ function clearAbuseReport()
 	$abuseID = $_POST['abuseID'];
 	clearAbuse($abuseID);
 	print "The abuse report has been cleared, no further action needed.<br/><br/>\n";
+	print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='viewReports' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
+}
+
+function deleteAbusivePost()
+{
+	$abuseID = $_POST['abuseID'];
+	$abuseInfo = getAbuseInfo($abuseID);
+	$abuserEmail = $abuseInfo['email'];
+	clearAbuse($abuseID);
+	deletePost($abuseID);
+	print "The post by <strong>".$abuserEmail."</strong> has been deleted.<br/><br/>\n";
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewReports' value='Return' /></h5>\n";
 	print "</form>\n</div>\n";
