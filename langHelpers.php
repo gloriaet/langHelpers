@@ -74,6 +74,16 @@ if(isset($_SESSION['moderator']))
 		deleteAbusivePost();
 	}
 	
+	else if($_POST['chooseUser'])
+	{
+		displayActiveUsers();
+	}
+	
+	else if($_POST['submitUserChoice'])
+	{
+		showAbuseHistory();
+	}
+	
 	else
 	{
 		displayModeratorHome();
@@ -360,6 +370,7 @@ function displayModeratorHome()
     print "<strong>Welcome Moderator!</strong><br>\n";
     print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewReports' value='View Reports' /></h5>\n";
+	print "<h5> <input type='submit' name='chooseUser' value='Abuse History' /></h5>\n";
     print "<h5> <input type='submit' name='logOut' value='Log Out' /></h5>\n";
 	print "</form>\n</div>\n";
 }
@@ -383,15 +394,15 @@ function displayUserHome()
 	print "</form>\n</div>\n";
 }
 
-function displayLanguageChange()
+/*function displayLanguageChange()
 {
-    print "Here a user will be able to change their posting language.";
+    print "Here, you can change their posting language.";
 
     print "<div> <form method='post' action='$self' >\n";
     print "<h5> <input type='submit' name='submitLanguage' ".
 	      " value='Submit' /></h5>\n";
 	print "</form>\n</div>\n";
-}
+}*/
 
 function showQuestionPostForm($content)
 {
@@ -876,5 +887,47 @@ function deleteAbusivePost()
 	print "The post by <strong>".$abuserEmail."</strong> has been deleted.<br/><br/>\n";
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='viewReports' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
+}
+
+function displayActiveUsers()
+{
+	$self = $_SERVER['PHP_SELF'];
+    print "<strong>Please choose a user to view their Abuse History.</strong>\n";
+
+    $userEmails = getAllUserEmails();
+
+    print "<div> <form method='post' action='$self' >\n";
+    print "<h4> <select name = 'userChoice' >\n";
+    for($i = 0; $i < sizeof($userEmails); $i++)
+    {
+        print "<option value = '$i'> $userEmails[$i] </option>\n";
+    }
+    print "</select></h4>\n";
+    print "<h5> <input type='submit' name='submitUserChoice' ".
+	      " value='Submit' /></h5>\n";
+	print "</form>\n</div>\n";
+}
+
+function showAbuseHistory()
+{
+    $selectedUser = $_POST['userChoice'] + 1;
+	$userEmails = getAllUserEmails();
+	$email = $userEmails[$selectedUser];
+	$abuseHistoryIDs = getAbuseHistory($email);
+	print "Abuse History of <strong>".$email."</strong><br/><br/>\n";
+	for($i = 0; $i < count($abuseHistoryIDs); $i++)
+	{
+	    $abuseHistoryID = $abuseHistoryIDs[$i];
+	    $abuseID = $abuseIDArray[$i];
+		$abusivePostContent = getAbuseHistoryContent($abuseHistoryID);
+		print "-------------------------------------------------------------------------------------------------------------------<br/>\n";
+		print "<strong>Post:</strong> ".$abusivePostContent."<br/><br/>\n";
+	}
+	
+	print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='hidden' name='userEmail' value='".$email."' /></h5>\n";
+	print "<h5> <input type='submit' name='banUser' value='Ban User' /></h5>\n";
+	print "<h5> <input type='submit' name='modHome' value='Dashboard' /></h5>\n";
 	print "</form>\n</div>\n";
 }

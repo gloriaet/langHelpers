@@ -615,4 +615,49 @@ function deletePost($abuseID)
 	$recordLinkQuery = "INSERT INTO UserAbuseHistory VALUES ('".$posterEmail."', '".$recordID."');";
 	mysqli_query($conn, $recordLinkQuery);
 }
+
+function getAllUserEmails()
+{
+	$conn = connectToDB();
+    $emails = array();
+    $query = "SELECT userEmail FROM User WHERE active = 1;";
+    $result = mysqli_query($conn, $query);
+	if (mysqli_num_rows($result) > 0)
+	{
+		while ($row = mysqli_fetch_assoc($result))
+		{
+		    $email = $row["userEmail"];
+            array_push($emails, $email);
+		}
+	}
+	return $emails;
+}
+
+function getAbuseHistory($email)
+{
+	$conn = connectToDB();
+	$abuseHistoryIDs = array();
+	$query = "SELECT abuseHistoryID FROM UserAbuseHistory WHERE userEmail = '".$email."';";
+    $result = mysqli_query($conn, $query);
+	if (mysqli_num_rows($result) > 0)
+	{
+		while ($row = mysqli_fetch_assoc($result))
+		{
+		    $abuseHistoryID = intval($row["abuseHistoryID"]);
+            array_push($abuseHistoryIDs, $abuseHistoryID);
+		}
+	}
+	return $abuseHistoryIDs;
+}
+
+function getAbuseHistoryContent($abuseHistoryID)
+{
+	$conn = connectToDB();
+	$content = "";
+	$query = "SELECT abusivePostContent FROM AbusivePostHistory WHERE abuseHistoryID = '".$abuseHistoryID."';";
+	$result = mysqli_query($conn, $query);
+	$row = mysqli_fetch_assoc($result);
+	$content = $row['abusivePostContent'];
+	return $content;
+}
 ?>
