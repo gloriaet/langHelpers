@@ -64,6 +64,11 @@ if(isset($_SESSION['moderator']))
 		viewDetailedAbuseReport();
 	}
 	
+	else if($_POST['clearAbuseReport'])
+	{
+		clearAbuseReport();
+	}
+	
 	else
 	{
 		displayModeratorHome();
@@ -839,8 +844,19 @@ function viewDetailedAbuseReport()
 	print "<strong>Report: </strong>".$abuseReportContent."<br/><br/>\n";
 	print "<strong>Original Post Content: </strong>".$abusivePostContent."<br/><br/>\n";
 	print "<div> <form method='post' action='$self' >\n";
-	print "<h5> <input type='submit' name='clearAbuseReport' value='Clear' /></h5>\n";
+	print "<h5> <input type='hidden' name='abuseID' value='".$abuseID."' /></h5>\n";
+	print "<h5> <input type='submit' name='clearAbuseReport' value='Clear Report' /></h5>\n";
 	print "<h5> <input type='submit' name='deletePost' value='Delete Post' /></h5>\n";
-	print "<h5> <input type='submit' name='viewAbuseReports' value='Return' /></h5>\n";
+	print "<h5> <input type='submit' name='viewReports' value='Return' /></h5>\n";
+	print "</form>\n</div>\n";
+}
+
+function clearAbuseReport()
+{
+	$abuseID = $_POST['abuseID'];
+	clearAbuse($abuseID);
+	print "The abuse report has been cleared, no further action needed.<br/><br/>\n";
+	print "<div> <form method='post' action='$self' >\n";
+	print "<h5> <input type='submit' name='viewReports' value='Return' /></h5>\n";
 	print "</form>\n</div>\n";
 }

@@ -565,4 +565,11 @@ function getAnswerContent($answerID)
 	$answerContent = $row['answerContent'];
 	return $answerContent;
 }
+
+function clearAbuse($abuseID)
+{
+	$conn = connectToDB();
+	$query = "UPDATE AbuseReport SET cleared = 1 WHERE abuseID = '".$abuseID."';";
+	mysqli_query($conn, $query);
+}
 ?>
