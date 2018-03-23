@@ -1,3 +1,20 @@
+DROP TABLE UserAbuseHistory;
+DROP TABLE AbusivePostHistory;
+DROP TABLE UserAbusiveAnswer;
+DROP TABLE UserReportedAnswer;
+DROP TABLE UserReportedQuestion;
+DROP TABLE UserAbusiveQuestion;
+DROP TABLE AbuseReport;
+DROP TABLE UserUpvotedAnswer;
+DROP TABLE UserAnswer;
+DROP TABLE Answer;
+DROP TABLE UserQuestion;
+DROP TABLE Question;
+DROP TABLE UserLanguage;
+DROP TABLE Language;
+DROP TABLE Moderator;
+DROP TABLE User;
+
 CREATE TABLE User (
     userID int AUTO_INCREMENT not null,
     userEmail varchar(100) not null,
@@ -8,6 +25,7 @@ CREATE TABLE User (
 	hash varchar(32) not null,
     active boolean not null,
 	pickedLanguage boolean not null,
+	banned boolean not null,
     primary key (userID),
     unique key (userEmail, userNickname)
     ) Engine = InnoDB;

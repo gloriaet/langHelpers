@@ -84,6 +84,11 @@ if(isset($_SESSION['moderator']))
 		showAbuseHistory();
 	}
 	
+	else if($_POST['banUser'])
+	{
+		banUser();
+	}
+	
 	else
 	{
 		displayModeratorHome();
@@ -911,23 +916,43 @@ function displayActiveUsers()
 
 function showAbuseHistory()
 {
-    $selectedUser = $_POST['userChoice'] + 1;
+    $selectedUser = $_POST['userChoice'];
 	$userEmails = getAllUserEmails();
 	$email = $userEmails[$selectedUser];
 	$abuseHistoryIDs = getAbuseHistory($email);
 	print "Abuse History of <strong>".$email."</strong><br/><br/>\n";
-	for($i = 0; $i < count($abuseHistoryIDs); $i++)
+	
+	if(count($abuseHistoryIDs) > 0)
 	{
-	    $abuseHistoryID = $abuseHistoryIDs[$i];
-	    $abuseID = $abuseIDArray[$i];
-		$abusivePostContent = getAbuseHistoryContent($abuseHistoryID);
+		for($i = 0; $i < count($abuseHistoryIDs); $i++)
+		{
+			$abuseHistoryID = $abuseHistoryIDs[$i];
+			$abuseID = $abuseIDArray[$i];
+			$abusivePostContent = getAbuseHistoryContent($abuseHistoryID);
+			print "-------------------------------------------------------------------------------------------------------------------<br/>\n";
+			print "<strong>Post:</strong> ".$abusivePostContent."<br/><br/>\n";
+		}
+	}
+	else
+	{
 		print "-------------------------------------------------------------------------------------------------------------------<br/>\n";
-		print "<strong>Post:</strong> ".$abusivePostContent."<br/><br/>\n";
+		print "This user has no history of abusive posts!<br/><br/>\n";
 	}
 	
 	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='hidden' name='userEmail' value='".$email."' /></h5>\n";
 	print "<h5> <input type='submit' name='banUser' value='Ban User' /></h5>\n";
+	print "<h5> <input type='submit' name='modHome' value='Dashboard' /></h5>\n";
+	print "</form>\n</div>\n";
+}
+
+function banUser()
+{
+	$userEmail = $_POST['userEmail'];
+	banAbusiveUser($userEmail);
+	
+	print "You successfully banned <strong>".$userEmail."</strong>!<br/><br/>\n";
+	print "<div> <form method='post' action='$self' >\n";
 	print "<h5> <input type='submit' name='modHome' value='Dashboard' /></h5>\n";
 	print "</form>\n</div>\n";
 }

@@ -38,7 +38,7 @@ function checkNickname($nickname)
 function createAccount($email, $nickname, $password, $firstName, $lastName, $hash)
 {
     $conn = connectToDB();
-    $query = "INSERT INTO User values (null, '".$email."', '".$nickname."', '".$password."', '".$firstName."', '".$lastName."', '".$hash."', 0, 0);";
+    $query = "INSERT INTO User values (null, '".$email."', '".$nickname."', '".$password."', '".$firstName."', '".$lastName."', '".$hash."', 0, 0, 0);";
     mysqli_query($conn, $query);
 }
 
@@ -67,7 +67,7 @@ function checkUser($email, $password)
 {
     $conn = connectToDB();
     $safeLogIn = true; //indicates proper log in
-    $query = "SELECT userPassword, active FROM User WHERE userEmail = '".$email."';";
+    $query = "SELECT userPassword, active, banned FROM User WHERE userEmail = '".$email."';";
     $result = mysqli_query($conn, $query);
     if(mysqli_num_rows($result) == 0) //this account does not exist, no log in
     {
@@ -76,7 +76,7 @@ function checkUser($email, $password)
     else
     {
         $row = mysqli_fetch_assoc($result);
-        if($row['active'] == 0 || $row['userPassword'] != $password) //improper log in - account inactive or password invalid
+        if($row['active'] == 0 || $row['banned'] == 1 || $row['userPassword'] != $password) //improper log in - account inactive, banned, or password invalid
         {
             $safeLogIn = false;
         }
@@ -171,6 +171,7 @@ function getUserID($email)
     return $id;
 }
 
+//Retrieves the unique userID associated with a particular user based on their unique nickname
 function getUserIDByNickname($nickname)
 {
     $conn = connectToDB();
@@ -277,7 +278,7 @@ function getPostInfo($postID)
     return $postInfo;
 }
 
-//Retrieves detailed information about a particular question to display
+//Retrieves detailed information about a particular question to display on its own page
 function getQuestion($postID)
 {
 	$conn = connectToDB();
@@ -394,60 +395,63 @@ function getAnswer($answerID)
 //Adds an upvote to a particular answer
 function upvoteAnswer($userID, $answerID)
 {
-  $conn = connectToDB();
-  $query = "UPDATE Answer SET numUpvotes = (numUpvotes + 1) WHERE answerID = '".$answerID."';";
-  mysqli_query($conn, $query);
+	$conn = connectToDB();
+	$query = "UPDATE Answer SET numUpvotes = (numUpvotes + 1) WHERE answerID = '".$answerID."';";
+	mysqli_query($conn, $query);
 
-  $query2 = "INSERT INTO UserUpvotedAnswer VALUES ('".$userID."', '".$answerID."');";
-  mysqli_query($conn, $query2);
+	$query2 = "INSERT INTO UserUpvotedAnswer VALUES ('".$userID."', '".$answerID."');";
+	mysqli_query($conn, $query2);
 }
 
 //Checks whether a particular user has already upvoted a particular answer
 function userUpvotedAnswer($userID, $answerID)
 {
-  $conn = connectToDB();
-  $query = "SELECT * FROM UserUpvotedAnswer WHERE userID = '".$userID."' AND answerUpvotedID = '".$answerID."';";
-  $result = mysqli_query($conn, $query);
-  $alreadyUpvoted = false; //user has not upvoted the answer
+	$conn = connectToDB();
+	$query = "SELECT * FROM UserUpvotedAnswer WHERE userID = '".$userID."' AND answerUpvotedID = '".$answerID."';";
+	$result = mysqli_query($conn, $query);
+	$alreadyUpvoted = false; //user has not upvoted the answer
 
-  if(mysqli_num_rows($result) > 0) //user has upvoted the answer already
-  {
-      $alreadyUpvoted = true;
-  }
+	if(mysqli_num_rows($result) > 0) //user has upvoted the answer already
+	{
+		$alreadyUpvoted = true;
+	}
 
-  return $alreadyUpvoted;
+	return $alreadyUpvoted;
 }
 
+//Checks whether a particular user has already reported a particular question
 function userReportedQuestion($userID, $postID)
 {
 	$conn = connectToDB();
-  $query = "SELECT * FROM UserReportedQuestion WHERE userID = '".$userID."' AND questionReportedID = '".$postID."';";
-  $result = mysqli_query($conn, $query);
-  $alreadyReported = false; //user has not reported the question
+	$query = "SELECT * FROM UserReportedQuestion WHERE userID = '".$userID."' AND questionReportedID = '".$postID."';";
+	$result = mysqli_query($conn, $query);
+	$alreadyReported = false; //user has not reported the question
 
-  if(mysqli_num_rows($result) > 0) //user has reported the question already
-  {
-      $alreadyReported = true;
-  }
+	if(mysqli_num_rows($result) > 0) //user has reported the question already
+	{
+		$alreadyReported = true;
+	}
 
-  return $alreadyReported;
+	return $alreadyReported;
 }
 
+//Checks whether a particular user has already reported a particular answer
 function userReportedAnswer($userID, $answerID)
 {
 	$conn = connectToDB();
-  $query = "SELECT * FROM UserReportedAnswer WHERE userID = '".$userID."' AND answerReportedID = '".$answerID."';";
-  $result = mysqli_query($conn, $query);
-  $alreadyReported = false; //user has not reported the answer
+	$query = "SELECT * FROM UserReportedAnswer WHERE userID = '".$userID."' AND answerReportedID = '".$answerID."';";
+	$result = mysqli_query($conn, $query);
+	$alreadyReported = false; //user has not reported the answer
 
-  if(mysqli_num_rows($result) > 0) //user has reported the answer already
-  {
-      $alreadyReported = true;
-  }
+	if(mysqli_num_rows($result) > 0) //user has reported the answer already
+	{
+		$alreadyReported = true;
+	}
 
-  return $alreadyReported;	
+	return $alreadyReported;	
 }
 
+//Reports a particular question for abusive content
 function reportQuestion($content, $reporterID, $reportedID, $postID)
 {
 	$conn = connectToDB();
@@ -462,6 +466,7 @@ function reportQuestion($content, $reporterID, $reportedID, $postID)
 	mysqli_query($conn, $queryLink2);
 }
 
+//Reports a particular answer for abusive content
 function reportAnswer($content, $reporterID, $reportedID, $answerID)
 {
 	$conn = connectToDB();
@@ -476,6 +481,7 @@ function reportAnswer($content, $reporterID, $reportedID, $answerID)
 	mysqli_query($conn, $queryLink);
 }
 
+//Retrieves abuseIDs for all abuse reports that have not already been cleared by a moderator 
 function getOpenAbuseReports()
 {
 	$conn = connectToDB();
@@ -493,6 +499,7 @@ function getOpenAbuseReports()
 	return $abuseIDs;
 }
 
+//Retrieves the message submitted with a particular abuse report
 function getAbuseReportContent($abuseID)
 {
 	$conn = connectToDB();
@@ -503,6 +510,7 @@ function getAbuseReportContent($abuseID)
 	return $reportContent;
 }
 
+//Retrieves and compiles information about a particular abuse report to display in a table
 function getAbuseInfo($abuseID)
 {
 	$conn = connectToDB();
@@ -513,7 +521,7 @@ function getAbuseInfo($abuseID)
 	$result = mysqli_query($conn, $checkPostTypeQuery);
 	$row = mysqli_fetch_assoc($result);
 	$postTypeID = intval($row['question']);
-	if($postTypeID == 1)
+	if($postTypeID == 1) //the post is a question
 	{
 		$postIDQuery = "SELECT userID, abusivePostID FROM UserAbusiveQuestion WHERE abuseReportID = '".$abuseID."';";
 		$result2 = mysqli_query($conn, $postIDQuery);
@@ -523,7 +531,7 @@ function getAbuseInfo($abuseID)
 		$postContent = getQuestionContent(intval($row2['abusivePostID']));
 		$abuseInfo['postContent'] = $postContent;
 	}
-	else
+	else //the post is an answer
 	{
 		$postIDQuery = "SELECT abusivePostID, userID FROM UserAbusiveAnswer WHERE abuseReportID = '".$abuseID."';";
 		$result3 = mysqli_query($conn, $postIDQuery);
@@ -536,6 +544,7 @@ function getAbuseInfo($abuseID)
 	return $abuseInfo;
 }
 
+//Retrieves a User's unique email address using their unique userID
 function getUserEmail($userID)
 {
 	$conn = connectToDB();
@@ -546,6 +555,7 @@ function getUserEmail($userID)
 	return $userEmail;
 }
 
+//Retrieves the content of a particular question post
 function getQuestionContent($questionID)
 {
 	$conn = connectToDB();
@@ -556,6 +566,7 @@ function getQuestionContent($questionID)
 	return $questionContent;
 }
 
+//Retrieves the content of a particular answer post
 function getAnswerContent($answerID)
 {
 	$conn = connectToDB();
@@ -566,6 +577,8 @@ function getAnswerContent($answerID)
 	return $answerContent;
 }
 
+//Sets a particular abuse report's ID to cleared
+//Used for both clearing abuse reports (with no response) and when deleting an abusive post (responding to report)
 function clearAbuse($abuseID)
 {
 	$conn = connectToDB();
@@ -573,6 +586,8 @@ function clearAbuse($abuseID)
 	mysqli_query($conn, $query);
 }
 
+//Deletes a post that has been determined by a moderator to be abusive
+//Maintains a record of the content of the abusive post in order to keep an abuse history for users
 function deletePost($abuseID)
 {
     $conn = connectToDB();
@@ -584,7 +599,7 @@ function deletePost($abuseID)
 	$posterContent = "";
 	$deletePostQuery = "";
 	
-	if($postTypeID == 1)
+	if($postTypeID == 1) //the post is a question
 	{
 		$postIDQuery = "SELECT userID, abusivePostID FROM UserAbusiveQuestion WHERE abuseReportID = '".$abuseID."';";
 		$result2 = mysqli_query($conn, $postIDQuery);
@@ -595,7 +610,7 @@ function deletePost($abuseID)
 		$postContent = getQuestionContent($abusivePostID);
 		$deletePostQuery = "DELETE FROM Question WHERE questionID = '".$abusivePostID."';";
 	}
-	else
+	else //the post is an answer
 	{
 		$postIDQuery = "SELECT abusivePostID, userID FROM UserAbusiveAnswer WHERE abuseReportID = '".$abuseID."';";
 		$result3 = mysqli_query($conn, $postIDQuery);
@@ -616,11 +631,12 @@ function deletePost($abuseID)
 	mysqli_query($conn, $recordLinkQuery);
 }
 
+//Retrieves the emails for all active, non-banned users in the system
 function getAllUserEmails()
 {
 	$conn = connectToDB();
     $emails = array();
-    $query = "SELECT userEmail FROM User WHERE active = 1;";
+    $query = "SELECT userEmail FROM User WHERE active = 1 AND banned = 0;";
     $result = mysqli_query($conn, $query);
 	if (mysqli_num_rows($result) > 0)
 	{
@@ -633,6 +649,7 @@ function getAllUserEmails()
 	return $emails;
 }
 
+//Retrieves the history of abusive posts by a particular user
 function getAbuseHistory($email)
 {
 	$conn = connectToDB();
@@ -650,6 +667,7 @@ function getAbuseHistory($email)
 	return $abuseHistoryIDs;
 }
 
+//Retrieves the abusive post content for a particular abuseHistoryID
 function getAbuseHistoryContent($abuseHistoryID)
 {
 	$conn = connectToDB();
@@ -659,5 +677,13 @@ function getAbuseHistoryContent($abuseHistoryID)
 	$row = mysqli_fetch_assoc($result);
 	$content = $row['abusivePostContent'];
 	return $content;
+}
+
+//Sets a particular User to banned so they can no longer access the system
+function banAbusiveUser($userEmail)
+{
+	$conn = connectToDB();
+	$query = "UPDATE User SET banned = 1 WHERE userEmail = '".$userEmail."';";
+	mysqli_query($conn, $query);
 }
 ?>
