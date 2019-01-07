@@ -1,29 +1,15 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+### LangHelpers - 2018 CS Senior Project ###
 
-### What is this repository for? ###
+# Project Details #
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+*August 2017 - March 2018
+*Author: Gloria Temple
+*Advisor: Dr. Laura Baker, St. Edward's University
 
-### How do I get set up? ###
+*A forum-based Q&A service for university students in foreign language and study abroad programs
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+*Current URL: http://gtemple1.create.stedwards.edu/langHelpers/langHelpers.php
 
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+*Host server is not secure - do not input any sensitive information when testing/using service
