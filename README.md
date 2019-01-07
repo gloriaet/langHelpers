@@ -5,7 +5,9 @@
 # Project Details #
 
 *August 2017 - March 2018
+
 *Author: Gloria Temple
+
 *Advisor: Dr. Laura Baker, St. Edward's University
 
 *A forum-based Q&A service for university students in foreign language and study abroad programs
